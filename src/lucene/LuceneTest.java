@@ -1,6 +1,12 @@
 package lucene;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.icu.ICUNormalizer2Filter;
@@ -14,17 +20,17 @@ import org.apache.lucene.util.Version;
 
 public class LuceneTest {
 
-	public LuceneTest() {
-		// TODO Auto-generated constructor stub
-	}
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 		WordCount wc=new WordCount();
-		String str="これはある精神病院の患者、――第二十三号がだれにでもしゃべる話である。彼はもう三十を越しているであろう。が、一見したところはいかにも若々しい狂人である。狂人だった。狂人すぎる。狂人なのか。";
+		
+		//String str="これはある精神病院の患者、――第二十三号がだれにでもしゃべる話である。彼はもう三十を越しているであろう。が、一見したところはいかにも若々しい狂人である。狂人だった。狂人すぎる。狂人なのか。";
 		try{
-			wc.WordFreq(str);
+			BufferedReader buffer=new BufferedReader(new InputStreamReader(new FileInputStream("/home/tomoaki/workspace/owntwit_20131224.log")));			
+			
+			wc.WordFreqFile(buffer);
+			//wc.WordFreqString(str);
 			//wc.WordTokenize(str);
 				
 		}catch(IOException e){

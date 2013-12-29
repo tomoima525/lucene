@@ -1,5 +1,6 @@
 package lucene;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -90,10 +91,21 @@ public class WordCount {
 		
 	}
 	
-	public void WordFreq(String string) throws IOException{
+	public void WordFreqString(String string) throws IOException{
+		Reader reader= new StringReader(string);
+		WordFreq(reader);
+		reader.close();
+	}
+	
+	public void WordFreqFile(BufferedReader reader)throws IOException{
+		WordFreq(reader);
+	}
+	
+	public void WordFreq(Reader reader) throws IOException{
 
-	Reader reader=new StringReader(string);	
+	//Reader reader=new StringReader(string);	
 	Analyzer analyzer=new JapaneseAnalyzer(Version.LUCENE_46, null, Mode.NORMAL, JapaneseAnalyzer.getDefaultStopSet(), JapaneseAnalyzer.getDefaultStopTags());
+	//lucene filter http://www.mwsoft.jp/programming/lucene/lucene_filter.html
 	IndexWriterConfig indexWriterConfig=new IndexWriterConfig(Version.LUCENE_46, analyzer);
 	RAMDirectory index=new RAMDirectory();
 	//document
@@ -136,7 +148,7 @@ public class WordCount {
 		Map<String, Integer> sortMap=sortTermFrequencies(termMap);
 
 		for(Map.Entry<String, Integer> s:sortMap.entrySet()){
-			System.out.println("term:"+s.getKey()+" value:"+s.getValue());
+		//	System.out.println("term:"+s.getKey()+" value:"+s.getValue());
 		}
 	
 		
@@ -145,7 +157,7 @@ public class WordCount {
 	}
 
 	directoryReader.close();
-	reader.close();
+	//reader.close();
 	
 	}
 	
@@ -178,7 +190,9 @@ public class WordCount {
 		});
 		for(Entry<String,Integer> entry:entries){
 		result.put(entry.getKey(),entry.getValue());	
-		//System.out.println("t:"+entry.getKey()+"val:"+entry.getValue());
+		if(entry.getValue()>=3){
+			System.out.println("t: "+entry.getKey()+"  val: "+entry.getValue());
+		}
 		}
 		return  result;
 		
