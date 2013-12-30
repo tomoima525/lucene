@@ -27,11 +27,11 @@ public class LuceneTest {
 		
 		//String str="これはある精神病院の患者、――第二十三号がだれにでもしゃべる話である。彼はもう三十を越しているであろう。が、一見したところはいかにも若々しい狂人である。狂人だった。狂人すぎる。狂人なのか。";
 		try{
-			BufferedReader buffer=new BufferedReader(new InputStreamReader(new FileInputStream("/home/tomoaki/workspace/owntwit_20131224.log")));			
+			BufferedReader buffer=new BufferedReader(new InputStreamReader(new FileInputStream("/home/tomoaki/workspace/owntwit.log")));			
 			
 			wc.WordFreqFile(buffer);
 			//wc.WordFreqString(str);
-			//wc.WordTokenize(str);
+			//wc.WordTokenize(buffer);
 				
 		}catch(IOException e){
 			e.printStackTrace();

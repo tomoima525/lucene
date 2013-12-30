@@ -6,12 +6,14 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -26,6 +28,7 @@ import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer.Mode;
+import org.apache.lucene.analysis.ja.tokenattributes.PartOfSpeechAttribute;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.codecs.TermVectorsReader;
 import org.apache.lucene.document.Document;
@@ -62,6 +65,7 @@ public class WordCount {
         TYPE_STORED.setStoreTermVectorPositions(true);
         TYPE_STORED.freeze();
     }
+    
 	public WordCount() {
 		// TODO Auto-generated constructor stub
 	}
@@ -91,6 +95,41 @@ public class WordCount {
 		
 	}
 	
+	public void WordTokenize(BufferedReader reader) throws IOException{
+		StringReader stringReader;
+		TokenStream stream = new JapaneseTokenizer(reader,null,true,Mode.NORMAL);	
+		//stream= new ICUNormalizer2Filter(stream);
+		stream= new StopFilter(Version.LUCENE_46, stream, JapaneseAnalyzer.getDefaultStopSet());
+		stream = new JapaneseBaseFormFilter(stream);
+		stream = new JapanesePartOfSpeechStopFilter(Version.LUCENE_46, stream, JapaneseAnalyzer.getDefaultStopTags());
+		stream = new JapaneseKatakanaStemFilter(stream);
+		try{
+			stream.reset();
+			while(stream.incrementToken()){
+				//System.out.println("token:"+stream.toString());
+				//System.out.println("token:"+stream.getAttribute(CharTermAttribute.class));
+				String s=stream.getAttribute(CharTermAttribute.class).toString();
+				String pos= stream.getAttribute(PartOfSpeechAttribute.class).getPartOfSpeech();
+					if((pos.matches("名詞-数")==false)&&(s.length()>1)){
+				//	System.out.println(s);
+						System.out.println("token: "+s+" attr:"+pos);
+						
+				}
+			}	
+		}catch(IOException e){
+			e.printStackTrace();
+			stream.end();
+		}finally{
+			stream.close();
+		}
+		
+	}
+	
+
+
+
+
+	
 	public void WordFreqString(String string) throws IOException{
 		Reader reader= new StringReader(string);
 		WordFreq(reader);
@@ -106,6 +145,7 @@ public class WordCount {
 	//Reader reader=new StringReader(string);	
 	Analyzer analyzer=new JapaneseAnalyzer(Version.LUCENE_46, null, Mode.NORMAL, JapaneseAnalyzer.getDefaultStopSet(), JapaneseAnalyzer.getDefaultStopTags());
 	//lucene filter http://www.mwsoft.jp/programming/lucene/lucene_filter.html
+	
 	IndexWriterConfig indexWriterConfig=new IndexWriterConfig(Version.LUCENE_46, analyzer);
 	RAMDirectory index=new RAMDirectory();
 	//document
@@ -114,6 +154,7 @@ public class WordCount {
 	//make index
 	//textfield
 	Field textField=new Field(CONTENT, reader, TYPE_STORED);
+	
 	//clear index config
 	indexWriterConfig.setOpenMode(OpenMode.CREATE);
 	//increase the max heap size to the JVM (eg add -Xmx512m or -Xmx1g):
@@ -190,8 +231,8 @@ public class WordCount {
 		});
 		for(Entry<String,Integer> entry:entries){
 		result.put(entry.getKey(),entry.getValue());	
-		if(entry.getValue()>=3){
-			System.out.println("t: "+entry.getKey()+"  val: "+entry.getValue());
+		if((entry.getValue()>=10)){
+			System.out.println("t: "+entry.getKey()+"\t val: "+entry.getValue());
 		}
 		}
 		return  result;
